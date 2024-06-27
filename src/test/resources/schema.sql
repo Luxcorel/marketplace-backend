@@ -49,7 +49,7 @@ create table product
   color            integer,
   production_year  integer
     constraint check_year
-      check ((production_year >= 2000) AND (production_year <= 2100)),
+      check ((production_year >= 0) AND ((production_year)::double precision <= date_part('year'::text, CURRENT_DATE))),
   created_at       timestamp with time zone default now()             not null,
   constraint check_valid_purchase_status
     check (((buyer IS NULL) AND (status = 0)) OR ((buyer IS NOT NULL) AND (status = 1)) OR
@@ -68,6 +68,9 @@ create index product_product_category_index
 create index product_is_purchased_index
   on product (status);
 
+create index idx_product_category
+    on product (product_category);
+
 create table inbox
 (
   receiver_id uuid                                               not null
@@ -81,7 +84,7 @@ create table inbox
   sent_at     timestamp with time zone default now()             not null,
   product_id  uuid                                               not null
     constraint inbox_product_id_fk
-      references product
+      references product on delete cascade
 );
 
 create index inbox_receiver_id_index
@@ -91,7 +94,7 @@ create table product_image
 (
   product_id uuid                           not null
     constraint product_id_fk
-      references product,
+      references product on delete cascade,
   image_url  varchar                        not null,
   id         uuid default gen_random_uuid() not null
     constraint product_image_pk
