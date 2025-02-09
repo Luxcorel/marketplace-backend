@@ -1,5 +1,6 @@
 package org.example.marketplacebackend;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -105,7 +106,9 @@ public class InboxEndpointsTests {
         .build();
 
     ResultActions getMessage = mockMvc.perform(MockMvcRequestBuilders.get("/v1/inbox")
-        .principal(() -> "usernameInbox"));
+        .principal(() -> "usernameInbox")
+        .with(csrf())
+    );
     getMessage
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -149,7 +152,9 @@ public class InboxEndpointsTests {
 
     ResultActions getMessage = mockMvc.perform(
         MockMvcRequestBuilders.get("/v1/inbox/e8fc64de-5a16-4b76-bac0-cf4a20052589")
-            .principal(() -> "usernameInbox"));
+            .principal(() -> "usernameInbox")
+            .with(csrf())
+    );
     getMessage
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -179,7 +184,9 @@ public class InboxEndpointsTests {
 
     ResultActions deleteMessage = mockMvc.perform(
         MockMvcRequestBuilders.delete("/v1/inbox/d24b4a00-22f1-4ef2-a081-2c9b95f76156")
-            .principal(() -> "usernameInbox"));
+            .principal(() -> "usernameInbox")
+            .with(csrf())
+    );
 
     deleteMessage.andExpect(status().isOk());
 

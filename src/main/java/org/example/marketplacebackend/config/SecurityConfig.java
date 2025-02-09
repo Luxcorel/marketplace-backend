@@ -41,7 +41,7 @@ public class SecurityConfig {
   @Value("${ALLOWED_ORIGINS:http://localhost:3000}")
   private String allowedOrigins;
 
-  @Value("${CSRF_DOMAIN:}")
+  @Value("${CSRF_DOMAIN:localhost}")
   private String csrfDomain;
 
   @Value("${CSRF_SAME_SITE:Lax}")

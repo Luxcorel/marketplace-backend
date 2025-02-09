@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -90,6 +91,7 @@ public class OrderEndpointsTests {
 
     ResultActions createOrder = mockMvc.perform(post("/v1/orders")
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
     );
@@ -115,6 +117,7 @@ public class OrderEndpointsTests {
   public void createOrderFail() throws Exception {
     ResultActions createOrder = mockMvc.perform(post("/v1/orders")
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content("")
     );
@@ -150,12 +153,14 @@ public class OrderEndpointsTests {
 
     mockMvc.perform(post("/v1/orders")
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
     );
 
     ResultActions response = mockMvc.perform(get("/v1/orders")
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
     );
 
@@ -192,6 +197,7 @@ public class OrderEndpointsTests {
 
     ResultActions responseCreatedOrder = mockMvc.perform(post("/v1/orders")
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
     );
@@ -204,6 +210,7 @@ public class OrderEndpointsTests {
     ResultActions response = mockMvc.perform(get(
         endPoint)
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
     );
 
@@ -232,6 +239,7 @@ public class OrderEndpointsTests {
     ResultActions response = mockMvc.perform(get(
         endPoint)
         .principal(() -> "ken")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
     );
 

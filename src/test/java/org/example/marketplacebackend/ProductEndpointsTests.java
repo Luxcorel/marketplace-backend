@@ -31,6 +31,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -103,6 +104,7 @@ public class ProductEndpointsTests {
         .file(imageFile)
         .file(imageFile2)
         .principal(() -> "ken")
+        .with(csrf())
     );
 
     String response = createProduct
@@ -182,7 +184,9 @@ public class ProductEndpointsTests {
     String endPoint = "/v1/products/" + id.substring(1, id.length() - 1);
 
     ResultActions getProducts = mockMvc.perform(delete(endPoint)
-        .principal(() -> "ken"));
+        .principal(() -> "ken")
+        .with(csrf())
+    );
     getProducts.andExpect(status().isOk());
   }
 

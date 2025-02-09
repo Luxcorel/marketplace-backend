@@ -47,18 +47,37 @@ public class AuthTests {
   @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM account WHERE username = 'johndoe'")
   @Test
   public void testAuth() {
-    // set up authentication request
-    HttpHeaders requestHeaders = new HttpHeaders();
-    requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-    HttpEntity<String> request = new HttpEntity<>("username=johndoe&password=bruh", requestHeaders);
+    // fetch XSRF token cookie by pinging any endpoint that doesn't require XSRF token
+    ResponseEntity<String> xsrfResponse = restTemplate.exchange(
+        "http://localhost:" + port + "/v1/accounts/me", HttpMethod.GET, null, String.class);
 
-    // perform authentication request
+    List<String> cookies = xsrfResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+    Assertions.assertNotNull(cookies, "No cookies were returned");
+
+    String xsrfCookie = null;
+    for (String cookie : cookies) {
+      if (cookie.startsWith("XSRF-TOKEN=")) {
+        xsrfCookie = cookie;
+      }
+    }
+    Assertions.assertNotNull(xsrfCookie, "No XSRF token cookie was returned");
+
+    String xsrfToken = xsrfCookie.split("=")[1].split(";")[0];
+    Assertions.assertNotNull(xsrfToken, "No XSRF token was returned");
+
+    HttpHeaders loginHeaders = new HttpHeaders();
+    loginHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    loginHeaders.add(HttpHeaders.COOKIE, xsrfCookie);
+    loginHeaders.add("X-XSRF-TOKEN", xsrfToken);
+    HttpEntity<String> loginRequest = new HttpEntity<>("username=johndoe&password=bruh",
+        loginHeaders);
+
     ResponseEntity<String> loginResponse = restTemplate.postForEntity(
-        "http://localhost:" + port + "/v1/accounts/login", request, String.class);
+        "http://localhost:" + port + "/v1/accounts/login", loginRequest,
+        String.class);
     Assertions.assertEquals(HttpStatus.OK, loginResponse.getStatusCode(), "Authentication failed");
 
-    // grab cookies from request response
-    List<String> cookies = loginResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+    cookies = loginResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
     Assertions.assertNotNull(cookies, "No cookies were returned");
 
     // try to find session cookie
@@ -73,6 +92,8 @@ public class AuthTests {
 
     // set up authenticated request
     HttpHeaders authenticatedRequestHeaders = new HttpHeaders();
+    authenticatedRequestHeaders.add(HttpHeaders.COOKIE, xsrfCookie);
+    authenticatedRequestHeaders.add("X-XSRF-TOKEN", xsrfToken);
     authenticatedRequestHeaders.add(HttpHeaders.COOKIE, sessionCookie);
     HttpEntity<String> authenticatedRequest = new HttpEntity<>(authenticatedRequestHeaders);
 

@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.UUID;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class Utils {
@@ -33,6 +34,7 @@ public class Utils {
         .file(jsonProduct)
         .file(imageFile)
         .principal(() -> principalName)
+        .with(csrf())
     );
 
       return createProduct.andExpect(status().isCreated())

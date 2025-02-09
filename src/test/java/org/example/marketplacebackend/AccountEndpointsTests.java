@@ -22,6 +22,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,6 +58,7 @@ public class AccountEndpointsTests {
     String json = objectMapper.writeValueAsString(account);
 
     ResultActions createUser = mockMvc.perform(post("/v1/accounts/register")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json));
 
@@ -76,7 +78,9 @@ public class AccountEndpointsTests {
 
     accountRepository.save(account);
 
-    ResultActions createUser = mockMvc.perform(delete("/v1/accounts"));
+    ResultActions createUser = mockMvc.perform(delete("/v1/accounts")
+        .with(csrf())
+    );
 
     createUser.andExpect(status().isOk());
   }

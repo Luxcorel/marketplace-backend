@@ -1,5 +1,6 @@
 package org.example.marketplacebackend;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,7 +71,9 @@ class WatchlistControllerTests {
   public void getWatchlist() throws Exception {
 
     ResultActions getWatchlist = mockMvc.perform(MockMvcRequestBuilders.get("/v1/watchlist")
-        .principal(() -> "usernameInbox"));
+        .principal(() -> "usernameInbox")
+        .with(csrf())
+    );
 
     getWatchlist.andExpect(status().isOk());
   }
@@ -100,6 +103,7 @@ class WatchlistControllerTests {
 
     ResultActions resultActions = mockMvc.perform(post("/v1/watchlist")
         .principal(() -> "usernameInbox")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(json));
 
@@ -132,6 +136,7 @@ class WatchlistControllerTests {
     ResultActions resultActions = mockMvc.perform(
         delete("/v1/watchlist/fdeb0281-1481-45f9-b005-e02bba579085")
             .principal(() -> "usernameInbox")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
